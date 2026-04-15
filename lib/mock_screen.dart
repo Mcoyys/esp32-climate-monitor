@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:esp32_climate_app/services/notification_service.dart';
 
 class MockDeviceScreen extends StatefulWidget {
   const MockDeviceScreen({super.key});
@@ -52,31 +53,37 @@ class _MockDeviceScreenState extends State<MockDeviceScreen> {
   }
 
   void showHeatWarning() {
+    NotificationService().showHighTempWarning(currentTemp, "Simulator");
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.red[50],
-          title: const Row(
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
-              SizedBox(width: 10),
-              Text('EXTREME HEAT', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-          content: Text(
-            'Temperature has reached ${currentTemp.toStringAsFixed(1)} °C.\n\nPlease OPEN THE AC immediately.',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('ACKNOWLEDGE', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+        // StatefulBuilder allows the dialog to update dynamically while open
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: const Color.fromARGB(255, 53, 53, 53),
+              title: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+                  SizedBox(width: 10),
+                  Text('EXTREME HEAT', style: TextStyle(color: Colors.red)),
+                ],
+              ),
+              content: Text(
+                'Temperature has reached ${currentTemp.toStringAsFixed(1)} °C.\n\nPlease OPEN THE AC immediately.',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('ACKNOWLEDGE', style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          }
         );
       },
     );
@@ -116,7 +123,7 @@ class _MockDeviceScreenState extends State<MockDeviceScreen> {
             Text("${currentTemp.toStringAsFixed(1)} °C", style: TextStyle(
               fontSize: 48, 
               fontWeight: FontWeight.bold,
-              color: isWarningActive ? Colors.red : Colors.black
+              color: isWarningActive ? Colors.red : Colors.yellow
             )),
           ],
         ),

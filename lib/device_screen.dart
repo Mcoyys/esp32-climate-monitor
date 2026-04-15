@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:esp32_climate_app/services/notification_service.dart';
 
 class DeviceScreen extends StatefulWidget {
   final BluetoothDevice device;
@@ -14,6 +15,8 @@ class DeviceScreen extends StatefulWidget {
 class _DeviceScreenState extends State<DeviceScreen> {
   String humidityValue = "-- %";
   String tempValue = "-- °C";
+  double currentTemp = 0.0;
+  double currentHumidity = 0.0;
   bool isWarningActive = false;
   
   // Set your extreme heat threshold here (e.g., 35.0 °C)
@@ -56,12 +59,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
     List<String> splitData = decodedString.split(',');
 
     if (splitData.length >= 2) {
+      currentHumidity = double.tryParse(splitData[0]) ?? 0.0;
+      currentTemp = double.tryParse(splitData[1]) ?? 0.0;
       setState(() {
-        humidityValue = "${splitData[0]} %";
-        tempValue = "${splitData[1]} °C";
+        humidityValue = "${currentHumidity.toStringAsFixed(1)} %";
+        tempValue = "${currentTemp.toStringAsFixed(1)} °C";
       });
 
-      checkExtremeHeat(double.tryParse(splitData[1]) ?? 0.0);
+      checkExtremeHeat(currentTemp);
     }
   }
 
@@ -75,12 +80,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   void showHeatWarning() {
+    NotificationService().showHighTempWarning(currentTemp, widget.device.platformName);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.red[50],
+          backgroundColor: const Color.fromARGB(255, 57, 50, 51),
           title: const Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
@@ -90,7 +96,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
           ),
           content: Text(
             'Temperature has reached $tempValue.\n\nPlease OPEN THE AC immediately to prevent hardware damage or discomfort.',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            // Added Colors.red here so it shows up clearly in dark mode
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
           ),
           actions: <Widget>[
             TextButton(
@@ -138,7 +145,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
             Text(tempValue, style: TextStyle(
               fontSize: 48, 
               fontWeight: FontWeight.bold,
-              color: isWarningActive ? Colors.red : Colors.black
+              color: isWarningActive ? Colors.red : Colors.yellow
             )),
           ],
         ),
