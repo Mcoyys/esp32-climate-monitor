@@ -53,9 +53,9 @@ class _BLEScannerScreenState extends State<BLEScannerScreen> {
       await Future.delayed(const Duration(seconds: 4));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scan error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Scan error: $e')));
       }
     } finally {
       setState(() {
@@ -82,7 +82,9 @@ class _BLEScannerScreenState extends State<BLEScannerScreen> {
             onPressed: isScanning ? null : startScan,
           ),
           IconButton(
-            icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
             tooltip: 'Toggle Theme',
             onPressed: () {
               themeProvider.setDarkMode(!themeProvider.isDarkMode);
@@ -142,98 +144,123 @@ class _BLEScannerScreenState extends State<BLEScannerScreen> {
                       ),
                     )
                   : scanResults.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.bluetooth_disabled,
-                                  size: 72, color: onSurface.withAlpha(128)),
-                              const SizedBox(height: 18),
-                              Text(
-                                'No devices found',
-                                style: TextStyle(
-                                  color: onSurface,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Tap the search button to start scanning',
-                                style: TextStyle(color: onSurface.withAlpha(191), fontSize: 13),
-                              ),
-                            ],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.bluetooth_disabled,
+                            size: 72,
+                            color: onSurface.withAlpha(128),
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: scanResults.length,
-                          itemBuilder: (context, index) {
-                            final result = scanResults[index];
-                            final device = result.device;
-                            final rssi = result.rssi;
-                            if (device.platformName.isEmpty) return const SizedBox.shrink();
+                          const SizedBox(height: 18),
+                          Text(
+                            'No devices found',
+                            style: TextStyle(
+                              color: onSurface,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Tap the search button to start scanning',
+                            style: TextStyle(
+                              color: onSurface.withAlpha(191),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: scanResults.length,
+                      itemBuilder: (context, index) {
+                        final result = scanResults[index];
+                        final device = result.device;
+                        final rssi = result.rssi;
+                        if (device.platformName.isEmpty)
+                          return const SizedBox.shrink();
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  child: Icon(
-                                    Icons.network_wifi,
-                                    color: _signalColor(rssi),
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              child: Icon(
+                                Icons.network_wifi,
+                                color: _signalColor(rssi),
+                              ),
+                            ),
+                            title: Text(
+                              device.platformName,
+                              style: TextStyle(color: onSurface),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  device.remoteId.toString(),
+                                  style: TextStyle(
+                                    color: onSurface.withAlpha(204),
+                                    fontSize: 12,
                                   ),
                                 ),
-                                title: Text(device.platformName, style: TextStyle(color: onSurface)),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                const SizedBox(height: 6),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
                                   children: [
-                                    Text(
-                                      device.remoteId.toString(),
-                                      style: TextStyle(color: onSurface.withAlpha(204), fontSize: 12),
+                                    Chip(
+                                      label: Text(
+                                        _deviceTypeLabel(device.platformName),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      visualDensity: VisualDensity.compact,
                                     ),
-                                    const SizedBox(height: 6),
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 4,
-                                      children: [
-                                        Chip(
-                                          label: Text(
-                                            _deviceTypeLabel(device.platformName),
-                                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                                          ),
-                                          backgroundColor: Theme.of(context).colorScheme.primary,
-                                          visualDensity: VisualDensity.compact,
+                                    Chip(
+                                      label: Text(
+                                        'RSSI $rssi',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
                                         ),
-                                        Chip(
-                                          label: Text(
-                                            'RSSI $rssi',
-                                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                                          ),
-                                          backgroundColor: Theme.of(context).colorScheme.secondary,
-                                          visualDensity: VisualDensity.compact,
-                                        ),
-                                      ],
+                                      ),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
+                                      visualDensity: VisualDensity.compact,
                                     ),
                                   ],
                                 ),
-                                trailing: ElevatedButton(
-                                  onPressed: () {
-                                    FlutterBluePlus.stopScan();
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DeviceScreen(device: device),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('Connect'),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                              ],
+                            ),
+                            trailing: ElevatedButton(
+                              onPressed: () {
+                                FlutterBluePlus.stopScan();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DeviceScreen(
+                                      device: device,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Text('Connect'),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
         ],

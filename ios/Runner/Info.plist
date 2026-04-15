@@ -45,5 +45,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Bluetooth Permissions -->
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need Bluetooth access to connect to your ESP32 Climate Monitor device</string>
+	<key>NSBluetoothCentralUsageDescription</key>
+	<string>We need Bluetooth access to discover and connect to your climate sensor device</string>
+	
+	<!-- Location Permissions (required for Bluetooth scanning on iOS) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location is needed to scan for Bluetooth devices</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location is needed to discover nearby Bluetooth climate sensors</string>
 </dict>
 </plist>

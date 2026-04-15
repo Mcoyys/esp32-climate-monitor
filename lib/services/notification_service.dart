@@ -158,11 +158,15 @@ class NotificationService {
     );
   }
 
-  Future<void> showWiFiConfiguredSuccess(String deviceName, String ssid) async {
+  Future<void> showWiFiConfiguredSuccess(String deviceName, String ssid, {String? ipAddress}) async {
+    final body = ipAddress == null
+        ? '$deviceName successfully connected to $ssid.'
+        : '$deviceName successfully connected to $ssid with IP $ipAddress.';
+
     await showLocalNotification(
       id: 1006,
       title: '✅ WiFi Configured',
-      body: '$deviceName successfully connected to $ssid.',
+      body: body,
       payload: 'wifi_configured',
       urgent: false,
     );

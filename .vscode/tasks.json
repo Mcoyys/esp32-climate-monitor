@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Flutter Build Debug APK",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"build",
+				"apk",
+				"--debug"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Flutter Release APK",
+			"type": "shell",
+			"command": "flutter build apk --release",
+			"group": "build"
+		}
+	]
+}
